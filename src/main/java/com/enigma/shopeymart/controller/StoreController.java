@@ -20,17 +20,17 @@ public class StoreController {
     }
 
     @GetMapping("/store")
-    public List<Store> getAll(){
+    public List<StoreResponse> getAll(){
         return storeService.getAll();
     }
 
     @GetMapping("/store/{id}")
-    public Store getById(@PathVariable String id){
+    public StoreResponse getById(@PathVariable String id){
         return storeService.getById(id);
     }
     @PutMapping("/store")
-    public Store update(@RequestBody Store store){
-        return storeService.update(store);
+    public StoreResponse update(@RequestBody StoreRequest storeRequest){
+        return storeService.update(storeRequest);
     }
 
     @DeleteMapping("/store/{id}")
