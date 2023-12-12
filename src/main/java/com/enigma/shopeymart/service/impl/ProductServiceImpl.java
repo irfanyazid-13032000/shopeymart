@@ -10,6 +10,7 @@ import com.enigma.shopeymart.repository.ProductRepository;
 import com.enigma.shopeymart.service.ProductPriceService;
 import com.enigma.shopeymart.service.ProductService;
 import com.enigma.shopeymart.service.StoreService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +59,8 @@ public class ProductServiceImpl implements ProductService {
         products.stream().forEach(product -> {
             res.add(
             ProductResponse.builder()
+                    .description(product.getDescription())
+                    .productPrices(product.getProductPrices())
                     .ProductId(product.getId())
                     .ProductName(product.getName())
                 .build());
@@ -96,6 +99,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+    @Transactional(rollbackOn = Exception.class)
     @Override
     public ProductResponse createProductAndProductPrice(ProductRequest productRequest) {
         StoreResponse storeResponse = storeService.getById(productRequest.getStoreId().getId());
@@ -126,17 +130,17 @@ public class ProductServiceImpl implements ProductService {
                 .ProductId(product.getId())
                 .ProductName(product.getName())
                 .description(product.getDescription())
-                .price(productPrice.getPrice())
-                .stock(productPrice.getStock())
-                .store(
-                        storeResponse.toBuilder()
-                                .id(storeResponse.getId())
-                                .storeName(storeResponse.getStoreName())
-                                .phone(storeResponse.getPhone())
-                                .address(storeResponse.getAddress())
-                                .noSiup(storeResponse.getNoSiup())
-                                .build()
-                )
+//                .price(productPrice.getPrice())
+//                .stock(productPrice.getStock())
+//                .store(
+//                        storeResponse.toBuilder()
+//                                .id(storeResponse.getId())
+//                                .storeName(storeResponse.getStoreName())
+//                                .phone(storeResponse.getPhone())
+//                                .address(storeResponse.getAddress())
+//                                .noSiup(storeResponse.getNoSiup())
+//                                .build()
+//                )
                 .build();
     }
 }
