@@ -10,8 +10,15 @@ import com.enigma.shopeymart.repository.ProductRepository;
 import com.enigma.shopeymart.service.ProductPriceService;
 import com.enigma.shopeymart.service.ProductService;
 import com.enigma.shopeymart.service.StoreService;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -144,4 +151,62 @@ public class ProductServiceImpl implements ProductService {
 //                )
                 .build();
     }
+
+    @Override
+    public Page<ProductResponse> getAllByNameOrPrice(String name, Long maxPrice, Integer page, Integer size) {
+//        specification untuk menentukan criteria pencarian, disini criteria pencarian ditandai dengan root, root yang dimaksud adalah entity product
+        Specification<Product> specification = (root, query, criteriaBuilder)->{
+//            join digunakan untuk merelasikan antara  product dan product price
+            Join<Product,ProductPrice> productPrices = root.join("productPrices");
+//            predicate digunakan untuk menggunakan LIKE dimana nanti kita akan menggunakan kondisi pencarian parameter
+//            disini kita akan mencari nama product atau harga yg sama atau harga dibawahnya, makannya menggunakan lessThanOrEquals
+            List<Predicate> predicates = new ArrayList<>();
+            if (name != null){
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),"%"+name.toLowerCase() + "%"));
+            }
+
+            if (maxPrice != null){
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(productPrices.get("price"),maxPrice));
+            }
+//            kode return mengembalikan query dimana pada dasarnya kita membangun klausa where yg sudah ditentukan dari predicate atau kriteria
+            return query.where(predicates.toArray(new Predicate[]{})).getRestriction();
+        };
+
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Product> products = productRepository.findAll(specification,pageable);
+//        ini digunakan untuk menyimpan response product yg baru
+        List<ProductResponse> productResponses = new ArrayList<>();
+        for (Product product : products.getContent()){
+//            for disini digunakan untuk mengiterasi daftar produk yg disimpan dalam object
+            Optional<ProductPrice> productPrice = product.getProductPrices()
+                    .stream()
+                    .filter(ProductPrice::getIsActive).findFirst();
+            if (productPrice.isEmpty()) continue;
+            Store store = productPrice.get().getStore();
+            productResponses.add(toProductResponse(store,product,productPrice.get()));
+
+        }
+
+        return new PageImpl<>(productResponses,pageable,products.getTotalElements());
+    }
+
+
+    private static ProductResponse toProductResponse(Store store, Product product, ProductPrice productPrice){
+        return ProductResponse.builder()
+                .ProductId(product.getId())
+                .ProductName(product.getName())
+                .price(productPrice.getPrice())
+                .description(product.getDescription())
+                .stock(productPrice.getStock())
+                .store(StoreResponse.builder()
+                        .id(store.getId())
+                        .phone(store.getMobilePhone())
+                        .noSiup(store.getNoSiup())
+                        .address(store.getAddress())
+                        .build())
+
+                .build();
+    }
+
+
 }
