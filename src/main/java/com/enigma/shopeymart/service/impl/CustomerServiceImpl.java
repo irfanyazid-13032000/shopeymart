@@ -22,6 +22,7 @@ public class CustomerServiceImpl implements CustomerService {
         try {
             Customer customer = customerRepository.findById(id).orElse(null);
             return CustomerResponse.builder()
+                    .id(customer.getId())
                     .name(customer.getName())
                     .address(customer.getAddress())
                     .phone(customer.getMobilePhone())

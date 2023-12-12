@@ -120,6 +120,7 @@ public class ProductServiceImpl implements ProductService {
         ProductPrice productPrice = ProductPrice.builder()
                 .price(productRequest.getPrice())
                 .stock(productRequest.getStock())
+                .isActive(true)
                 .product(product)
                 .store(store)
                 .build();

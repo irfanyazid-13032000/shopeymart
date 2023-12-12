@@ -25,6 +25,9 @@ public class ProductPrice {
     @Column(name = "price",nullable = false,length = 30)
     private Long price;
 
+    @Column(name = "is_active")
+    private Boolean isActive;
+
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
@@ -33,6 +36,7 @@ public class ProductPrice {
     @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;
+
 
 
 
