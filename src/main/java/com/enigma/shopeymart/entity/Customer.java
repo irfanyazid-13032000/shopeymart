@@ -24,4 +24,11 @@ public class Customer {
     @Column(name = "mobile_phone",unique = true,nullable = false,length = 30)
     private String mobilePhone;
 
+    @Column(name = "email",nullable = true,unique = true)
+    private String email;
+
+    @OneToOne
+    @JoinColumn(name = "user_credential_id")
+    private UserCredential userCredential;
+
 }
