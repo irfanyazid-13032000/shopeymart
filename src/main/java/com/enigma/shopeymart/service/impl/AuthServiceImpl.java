@@ -4,12 +4,10 @@ import com.enigma.shopeymart.constant.ERole;
 import com.enigma.shopeymart.dto.request.AuthRequest;
 import com.enigma.shopeymart.dto.response.LoginResponse;
 import com.enigma.shopeymart.dto.response.RegisterResponse;
-import com.enigma.shopeymart.entity.AppUser;
-import com.enigma.shopeymart.entity.Customer;
-import com.enigma.shopeymart.entity.Role;
-import com.enigma.shopeymart.entity.UserCredential;
+import com.enigma.shopeymart.entity.*;
 import com.enigma.shopeymart.repository.UserCredentialRepository;
 import com.enigma.shopeymart.security.JwtUtil;
+import com.enigma.shopeymart.service.AdminService;
 import com.enigma.shopeymart.service.AuthService;
 import com.enigma.shopeymart.service.CustomerService;
 import com.enigma.shopeymart.service.RoleService;
@@ -36,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleService roleService;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+    private final AdminService adminService;
     @Override
     @Transactional(rollbackOn = Exception.class)
     public RegisterResponse registerCustomer(AuthRequest authRequest) {
@@ -82,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
 //        tempat untuk logic login
         validationUtil.valdate(authRequest);
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                authRequest.getUsername().toLowerCase(),
+                authRequest.getUsername(),
                 authRequest.getPassword()
         ));
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -94,6 +93,47 @@ public class AuthServiceImpl implements AuthService {
                 .token(token)
                 .role(appUser.getRole().name())
                 .build();
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public RegisterResponse registerAdmin(AuthRequest authRequest) {
+
+        try{
+//            todo 1 : set role
+            Role role = Role.builder()
+                    .name(ERole.ROLE_ADMIN)
+                    .build();
+            role = roleService.getOrSave(role);
+
+//            todo 2 : set credentials
+
+            UserCredential userCredential = UserCredential.builder()
+                    .username(authRequest.getUsername())
+                    .password(passwordEncoder.encode(authRequest.getPassword()))
+                    .role(role)
+                    .build();
+            userCredentialRepository.saveAndFlush(userCredential);
+
+//            todo 3 : set admin
+            Admin admin = Admin.builder()
+                    .phoneNumber(authRequest.getMobilePhone())
+                    .name(authRequest.getCustomerName())
+                    .userCredential(userCredential)
+                    .build();
+            adminService.create(admin);
+
+            return RegisterResponse.builder()
+                    .username(userCredential.getUsername())
+                    .role(role.getName().toString())
+                    .build();
+
+
+
+        }catch (DataIntegrityViolationException e){
+          throw new RuntimeException();
+        }
+
     }
 
 }

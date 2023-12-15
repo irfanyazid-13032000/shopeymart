@@ -7,6 +7,8 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.enigma.shopeymart.entity.AppUser;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -16,15 +18,19 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-    private final String jwtSecret = "newjeans";
-    private final String appName = "moviapp";
+    @Value("${app.shopeemart.jwt.jwt-secret}")
+    private String jwtSecret;
+    @Value("${app.shopeemart.jwt.app-name}")
+    private String appName;
+    @Value("${app.shopeemart.jwt.jwtExpirationInSecond}")
+    private Long ExpirationInSecond;
 
     public String generateToken(AppUser appUser){
         try {
             Algorithm algorithm = Algorithm.HMAC256(jwtSecret.getBytes(StandardCharsets.UTF_8));
             String token = JWT.create().withIssuer(appName)
                     .withSubject(appUser.getId())
-                    .withExpiresAt(Instant.now().plusSeconds(60))
+                    .withExpiresAt(Instant.now().plusSeconds(ExpirationInSecond))
                     .withClaim("role",appUser.getRole().name())
                     .sign(algorithm);
             return token;

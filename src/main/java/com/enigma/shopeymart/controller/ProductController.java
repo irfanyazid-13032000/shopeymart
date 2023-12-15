@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class ProductController {
 
 
     @GetMapping(value = "/page")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getAllProductPage(
             @RequestParam(name = "name",required = false) String name,
             @RequestParam(name = "maxPrice",required = false) Long maxPrice,

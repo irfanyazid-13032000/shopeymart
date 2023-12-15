@@ -24,6 +24,14 @@ public class AuthController {
 
     }
 
+    @PostMapping("/api/auth/register/admin")
+    public RegisterResponse registerAdmin(@RequestBody AuthRequest authRequest){
+        return authService.registerAdmin(authRequest);
+
+    }
+
+
+
 
     @PostMapping("api/auth/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest){
