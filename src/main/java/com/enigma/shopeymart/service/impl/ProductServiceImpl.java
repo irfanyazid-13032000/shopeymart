@@ -138,17 +138,17 @@ public class ProductServiceImpl implements ProductService {
                 .ProductId(product.getId())
                 .ProductName(product.getName())
                 .description(product.getDescription())
-//                .price(productPrice.getPrice())
-//                .stock(productPrice.getStock())
-//                .store(
-//                        storeResponse.toBuilder()
-//                                .id(storeResponse.getId())
-//                                .storeName(storeResponse.getStoreName())
-//                                .phone(storeResponse.getPhone())
-//                                .address(storeResponse.getAddress())
-//                                .noSiup(storeResponse.getNoSiup())
-//                                .build()
-//                )
+                .price(productPrice.getPrice())
+                .stock(productPrice.getStock())
+                .store(
+                        storeResponse.toBuilder()
+                                .id(storeResponse.getId())
+                                .storeName(storeResponse.getStoreName())
+                                .phone(storeResponse.getPhone())
+                                .address(storeResponse.getAddress())
+                                .noSiup(storeResponse.getNoSiup())
+                                .build()
+                )
                 .build();
     }
 
