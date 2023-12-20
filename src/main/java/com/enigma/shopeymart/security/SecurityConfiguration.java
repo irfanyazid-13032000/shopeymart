@@ -25,6 +25,8 @@ public class SecurityConfiguration {
 
     private final AuthTokenFilter authTokenFilter;
 
+    private final String[] WHITE_LIST= {"/api/auth/**","/**"};
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
@@ -34,7 +36,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req->{
-                    req.requestMatchers("/api/auth/**")
+                    req.requestMatchers(WHITE_LIST)
                             .permitAll()
                             .anyRequest()
                             .authenticated();
