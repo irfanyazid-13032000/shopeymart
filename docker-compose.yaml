@@ -1,0 +1,35 @@
+version: '3'
+services:
+
+  postgresql:
+    container_name: mikaelpost
+    environment:
+      - POSTGRES_PASSWORD=orimoto
+      - POSTGRES_DB=db_mickael
+    networks:
+      - app-network
+    volumes:
+      - "postgres-data:/var/lib/postgresql/data"
+    image: postgres
+
+  app-toko-mandiri:
+    container_name: sewaan
+    environment:
+      - DB_HOST=mikaelpost
+      - DB_PORT=5432
+      - PORT=8089
+      - DB_NAME=db_mickael
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=orimoto
+      - PATH_FILE=/home
+    ports:
+      - "8090:8089"
+    build: .
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+networks:
+  app-network:
+    driver: bridge

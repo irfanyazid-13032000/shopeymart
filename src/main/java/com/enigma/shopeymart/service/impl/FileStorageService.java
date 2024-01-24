@@ -1,6 +1,9 @@
 package com.enigma.shopeymart.service.impl;
 
 
+import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -17,9 +20,12 @@ import java.nio.file.StandardCopyOption;
 
 @Service
 public class FileStorageService {
-    private final Path fileStorageLocation = Paths.get("/home/user/BATCH14/maven/spring/shopeymart/src/main/java/com/enigma/shopeymart/file");
 
-    public FileStorageService(){
+    private final Path fileStorageLocation;
+
+
+    public FileStorageService(@Value("${app.path.file}") String fileStorageLocation){
+        this.fileStorageLocation = Paths.get(fileStorageLocation);
         try {
             Files.createDirectories(this.fileStorageLocation);
         }catch (Exception e){
@@ -27,6 +33,8 @@ public class FileStorageService {
 
         }
     }
+
+
 
 
     public String uploadFile(MultipartFile file){
